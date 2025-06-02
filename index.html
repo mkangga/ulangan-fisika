@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Interaktif: Pemanasan Global</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f9ff; /* Light blue background */
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e3a8a; /* Dark blue */
+            margin-bottom: 1.5rem;
+        }
+        .option-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #93c5fd; /* Lighter blue border */
+            border-radius: 8px;
+            background-color: #eff6ff; /* Very light blue */
+            color: #1e3a8a; /* Dark blue text */
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .option-button:hover {
+            background-color: #dbeafe; /* Light blue hover */
+            transform: translateY(-2px);
+        }
+        .option-button.selected {
+            background-color: #60a5fa; /* Medium blue */
+            color: white;
+            border-color: #3b82f6; /* Darker blue border */
+        }
+        .option-button.correct {
+            background-color: #34d399; /* Green */
+            color: white;
+            border-color: #059669; /* Darker green */
+        }
+        .option-button.incorrect {
+            background-color: #f87171; /* Red */
+            color: white;
+            border-color: #dc2626; /* Darker red */
+        }
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .feedback.correct {
+            background-color: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green text */
+            border: 1px solid #6ee7b7;
+        }
+        .feedback.incorrect {
+            background-color: #fee2e2; /* Light red */
+            color: #991b1b; /* Dark red text */
+            border: 1px solid #fca5a5;
+        }
+        .explanation {
+            margin-top: 0.75rem;
+            font-style: italic;
+            color: #4b5563; /* Gray text */
+        }
+        .navigation-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1.5rem;
+        }
+        .navigation-button:hover {
+            background-color: #2563eb; /* Darker blue */
+        }
+        .navigation-button:disabled {
+            background-color: #9ca3af; /* Gray when disabled */
+            cursor: not-allowed;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e7ff; /* Lightest blue */
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 10px;
+            width: 0%;
+            background-color: #3b82f6; /* Blue */
+            border-radius: 8px;
+            transition: width 0.5s ease-in-out;
+        }
+        .score-display {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 class="text-3xl font-bold text-center mb-3 text-blue-700">Kuis Pemanasan Global</h1>
+        <p class="text-center text-gray-600 mb-6">Uji pemahamanmu tentang isu pemanasan global!</p>
+
+        <div id="progress-container" class="progress-bar-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        
+        <div id="question-number" class="text-sm text-gray-500 mb-2 text-right"></div>
+
+        <div id="quiz-content">
+            <div id="question-text" class="question-text"></div>
+            <div id="options-container"></div>
+            <div id="feedback-container" class="feedback" style="display: none;"></div>
+            <button id="next-button" class="navigation-button" style="display: none;">Lanjut</button>
+        </div>
+
+        <div id="results-container" style="display: none;">
+            <div id="score-display" class="score-display"></div>
+            <p class="text-center text-gray-700 mb-4">Terima kasih telah mengerjakan kuis!</p>
+            <button id="restart-button" class="navigation-button block mx-auto">Ulangi Kuis</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Penyebab utama terjadinya pemanasan global adalah...",
+                options: [
+                    "Peningkatan populasi manusia",
+                    "Peningkatan konsentrasi gas rumah kaca di atmosfer",
+                    "Penurunan suhu permukaan laut",
+                    "Aktivitas gunung berapi yang meningkat",
+                    "Peningkatan aktivitas matahari"
+                ],
+                correctAnswer: 1,
+                explanation: "Pemanasan global terutama disebabkan oleh peningkatan konsentrasi gas rumah kaca (seperti CO2, metana) di atmosfer akibat aktivitas manusia. Gas-gas ini memerangkap panas matahari, menyebabkan suhu rata-rata Bumi meningkat."
+            },
+            {
+                question: "Gas rumah kaca berikut yang paling banyak berkontribusi terhadap efek rumah kaca adalah...",
+                options: [
+                    "Metana (CH4)",
+                    "Dinitrogen oksida (N2O)",
+                    "Karbon dioksida (CO2)",
+                    "Uap air (H2O)",
+                    "Klorofluorokarbon (CFC)"
+                ],
+                correctAnswer: 2,
+                explanation: "Karbon dioksida (CO2) adalah gas rumah kaca yang paling banyak berkontribusi terhadap peningkatan efek rumah kaca akibat aktivitas manusia, terutama karena pembakaran bahan bakar fosil dan deforestasi. Meskipun uap air (H2O) adalah gas rumah kaca alami yang paling melimpah, CO2 memiliki dampak jangka panjang yang lebih signifikan karena waktu tinggalnya yang lama di atmosfer dan peningkatannya yang drastis."
+            },
+            {
+                question: "Efek rumah kaca yang berlebihan dapat menyebabkan...",
+                options: [
+                    "Penurunan permukaan air laut",
+                    "Peningkatan populasi hewan laut",
+                    "Peningkatan suhu rata-rata permukaan Bumi",
+                    "Penurunan curah hujan global",
+                    "Peningkatan lapisan ozon"
+                ],
+                correctAnswer: 2,
+                explanation: "Efek rumah kaca yang berlebihan memerangkap lebih banyak panas di atmosfer Bumi, yang secara langsung menyebabkan peningkatan suhu rata-rata permukaan Bumi. Ini adalah inti dari fenomena pemanasan global."
+            },
+            {
+                question: "Salah satu dampak serius dari pemanasan global terhadap lingkungan adalah...",
+                options: [
+                    "Peningkatan keanekaragaman hayati",
+                    "Pencairan gletser dan lapisan es kutub",
+                    "Penurunan intensitas badai",
+                    "Peningkatan kesuburan tanah pertanian",
+                    "Penyempitan gurun pasir"
+                ],
+                correctAnswer: 1,
+                explanation: "Peningkatan suhu global menyebabkan pencairan gletser dan lapisan es di kutub. Hal ini berkontribusi pada kenaikan permukaan air laut, hilangnya habitat bagi banyak spesies, dan perubahan arus laut."
+            },
+            {
+                question: "Perjanjian internasional yang bertujuan untuk mengurangi emisi gas rumah kaca dan mengikat negara-negara industri adalah...",
+                options: [
+                    "Protokol Montreal",
+                    "Konvensi Basel",
+                    "Protokol Kyoto",
+                    "Konvensi Wina",
+                    "Perjanjian Paris"
+                ],
+                correctAnswer: 2, // Protokol Kyoto adalah yang pertama mengikat negara industri. Perjanjian Paris adalah penerusnya.
+                explanation: "Protokol Kyoto, yang diadopsi pada tahun 1997, adalah perjanjian internasional yang menetapkan target yang mengikat secara hukum bagi negara-negara industri untuk mengurangi emisi gas rumah kaca mereka. Perjanjian Paris (2015) adalah penerusnya dengan cakupan yang lebih luas."
+            },
+            {
+                question: "Kegiatan manusia yang paling banyak menghasilkan emisi karbon dioksida (CO2) adalah...",
+                options: [
+                    "Pertanian dan peternakan",
+                    "Penggunaan energi dari bahan bakar fosil",
+                    "Penggunaan energi surya",
+                    "Pengelolaan limbah organik",
+                    "Reboisasi hutan"
+                ],
+                correctAnswer: 1,
+                explanation: "Pembakaran bahan bakar fosil (seperti batu bara, minyak bumi, dan gas alam) untuk energi (listrik, transportasi, industri) adalah sumber emisi karbon dioksida (CO2) terbesar dari aktivitas manusia."
+            },
+            {
+                question: "Apa yang dimaksud dengan istilah \"jejak karbon\"?",
+                options: [
+                    "Jumlah karbon yang tersimpan dalam tubuh manusia",
+                    "Total emisi gas rumah kaca yang dihasilkan oleh aktivitas individu, organisasi, atau produk",
+                    "Jejak kaki yang ditinggalkan oleh karbon di tanah",
+                    "Jumlah karbon yang diekspor suatu negara",
+                    "Area hutan yang berhasil menyerap karbon dioksida"
+                ],
+                correctAnswer: 1,
+                explanation: "Jejak karbon adalah ukuran total emisi gas rumah kaca (dinyatakan dalam ekuivalen CO2) yang secara langsung atau tidak langsung disebabkan oleh suatu aktivitas, atau terakumulasi selama siklus hidup suatu produk, individu, atau organisasi."
+            },
+            {
+                question: "Mengapa CO2 dianggap lebih krusial dalam konteks pemanasan global antropogenik dibandingkan uap air (H2O), meskipun H2O lebih melimpah?",
+                options: [
+                    "H2O memiliki potensi pemanasan global (GWP) yang jauh lebih rendah daripada CO2",
+                    "H2O memiliki waktu tinggal di atmosfer yang sangat singkat dibandingkan CO2",
+                    "Konsentrasi H2O di atmosfer tidak dipengaruhi langsung oleh aktivitas manusia dalam skala besar, sedangkan CO2 sangat dipengaruhi",
+                    "CO2 memiliki kemampuan menyerap panas yang lebih kuat dibandingkan H2O"
+                ],
+                correctAnswer: 2,
+                explanation: "Konsentrasi uap air di atmosfer sangat dipengaruhi oleh suhu (sebagai umpan balik). Sebaliknya, konsentrasi CO2 meningkat secara signifikan akibat aktivitas manusia (pembakaran bahan bakar fosil, deforestasi) dan memiliki waktu tinggal yang sangat lama di atmosfer, sehingga menjadi pendorong utama perubahan iklim jangka panjang yang disebabkan manusia."
+            },
+            {
+                question: "Bagaimana pemanasan global yang meningkatkan frekuensi kekeringan dan banjir dapat mengancam keamanan pangan global?",
+                options: [
+                    "Mendorong pertumbuhan pesat hama dan penyakit tanaman yang tahan terhadap perubahan iklim.",
+                    "Mengurangi ketersediaan air bersih untuk irigasi dan merusak lahan pertanian subur.",
+                    "Menyebabkan penurunan drastis harga komoditas pangan global.",
+                    "Mempercepat proses fotosintesis pada tanaman sehingga hasil panen melimpah."
+                ],
+                correctAnswer: 1,
+                explanation: "Peristiwa cuaca ekstrem seperti kekeringan mengurangi ketersediaan air untuk irigasi, sementara banjir dapat merusak lahan pertanian dan tanaman. Kedua kondisi ini secara langsung mengancam produksi pangan, menyebabkan gagal panen dan mengganggu pasokan pangan global."
+            },
+            {
+                question: "Selain kenaikan permukaan air laut, apa implikasi jangka panjang signifikan dari pencairan lapisan es Arktik dan Antartika terhadap sistem iklim global?",
+                options: [
+                    "Peningkatan reflektifitas (albedo) permukaan Bumi, sehingga memantulkan lebih banyak panas.",
+                    "Pelepasan metana yang terperangkap di permafrost dan dasar laut, mempercepat efek rumah kaca.",
+                    "Penurunan kadar garam air laut secara drastis, mengganggu ekosistem laut dalam.",
+                    "Pembentukan awan es yang lebih banyak, menyebabkan pendinginan lokal.",
+                    "Pergeseran pola angin global yang menyebabkan suhu Bumi menurun secara keseluruhan."
+                ],
+                correctAnswer: 1,
+                explanation: "Pencairan permafrost (tanah beku permanen) dan lapisan es di dasar laut dapat melepaskan sejumlah besar metana (CH4), gas rumah kaca yang sangat poten. Pelepasan ini akan mempercepat pemanasan global, menciptakan umpan balik positif yang berbahaya."
+            },
+            {
+                question: "Dasar argumen negara berkembang bahwa negara maju harus memikul tanggung jawab lebih besar dalam mengurangi emisi gas rumah kaca adalah...",
+                options: [
+                    "Negara berkembang memiliki teknologi yang lebih maju untuk mitigasi emisi.",
+                    "Sebagian besar emisi historis yang menyebabkan pemanasan global berasal dari industrialisasi negara maju.",
+                    "Negara berkembang tidak memiliki sumber daya yang cukup untuk beralih ke energi terbarukan.",
+                    "Konsumsi energi per kapita di negara maju jauh lebih rendah daripada di negara berkembang.",
+                    "Negara maju adalah pihak yang paling rentan terhadap dampak pemanasan global."
+                ],
+                correctAnswer: 1,
+                explanation: "Negara-negara maju telah mengalami industrialisasi lebih awal dan lebih lama, sehingga secara historis mereka telah melepaskan jumlah gas rumah kaca yang jauh lebih besar ke atmosfer dibandingkan negara berkembang. Argumen ini mendasari prinsip \"tanggung jawab bersama namun berbeda\" (common but differentiated responsibilities)."
+            },
+            {
+                question: "Mengapa reboisasi (penanaman kembali hutan) dianggap penting sebagai strategi mitigasi pemanasan global?",
+                options: [
+                    "Pohon menghasilkan oksigen yang dapat mengurangi efek rumah kaca.",
+                    "Hutan mencegah terjadinya gelombang panas yang merusak.",
+                    "Pohon menyerap karbon dioksida (CO2) dari atmosfer melalui fotosintesis.",
+                    "Hutan menciptakan awan yang memantulkan sinar matahari kembali ke angkasa.",
+                    "Reboisasi meningkatkan kelembaban udara yang dapat mengurangi suhu permukaan."
+                ],
+                correctAnswer: 2,
+                explanation: "Pohon dan hutan memainkan peran krusial dalam siklus karbon global. Melalui proses fotosintesis, pohon menyerap karbon dioksida (CO2) dari atmosfer dan menyimpannya dalam biomassa mereka, sehingga membantu mengurangi konsentrasi gas rumah kaca."
+            },
+            {
+                question: "Mengapa pernyataan \"Pemanasan global tidak nyata karena kemarin di kota saya terjadi badai salju terparah\" menunjukkan kesalahpahaman?",
+                options: [
+                    "Pemanasan global hanya terjadi di belahan Bumi selatan, bukan utara.",
+                    "Cuaca ekstrem seperti badai salju sebenarnya diperkirakan akan menghilang sepenuhnya karena pemanasan global.",
+                    "Pernyataan tersebut mencampuradukkan konsep cuaca (fenomena jangka pendek) dengan iklim (pola jangka panjang).",
+                    "Pemanasan global menyebabkan pendinginan di wilayah tertentu karena perubahan arus laut.",
+                    "Data cuaca lokal lebih akurat dalam menunjukkan tren iklim global."
+                ],
+                correctAnswer: 2,
+                explanation: "Cuaca adalah kondisi atmosfer jangka pendek di suatu lokasi tertentu. Iklim adalah pola cuaca rata-rata jangka panjang. Satu peristiwa cuaca ekstrem lokal tidak meniadakan tren pemanasan global jangka panjang. Pemanasan global justru dapat meningkatkan variabilitas cuaca dan frekuensi kejadian ekstrem."
+            },
+            {
+                question: "Selain hilangnya lahan, apa potensi dampak sosial ekonomi terbesar dari kenaikan permukaan air laut, terutama di negara kepulauan kecil?",
+                options: [
+                    "Peningkatan pariwisata bahari karena area pantai yang lebih luas.",
+                    "Migrasi paksa penduduk, krisis pengungsi iklim, dan konflik perebutan sumber daya.",
+                    "Peningkatan ketersediaan air tawar di daerah pesisir.",
+                    "Penurunan biaya pembangunan infrastruktur di daerah pesisir.",
+                    "Peningkatan nilai jual properti di sepanjang garis pantai."
+                ],
+                correctAnswer: 1,
+                explanation: "Kenaikan permukaan air laut mengancam wilayah pesisir dengan inundasi dan erosi. Hal ini dapat memaksa penduduk untuk bermigrasi (menjadi pengungsi iklim), kehilangan tempat tinggal dan mata pencaharian, serta memicu konflik atas sumber daya yang semakin menipis."
+            },
+            {
+                question: "Pengembangan varietas tanaman pangan tahan kekeringan adalah contoh ____, sedangkan penggunaan energi angin pengganti bahan bakar fosil adalah contoh ____.",
+                options: [
+                    "Mitigasi dan Adaptasi",
+                    "Adaptasi dan Mitigasi",
+                    "Mitigasi dan Mitigasi",
+                    "Adaptasi dan Adaptasi",
+                    "Geoengineering dan Mitigasi"
+                ],
+                correctAnswer: 1,
+                explanation: "Adaptasi adalah upaya menyesuaikan diri dengan dampak perubahan iklim (misalnya, tanaman tahan kekeringan). Mitigasi adalah upaya mengurangi emisi gas rumah kaca untuk membatasi pemanasan (misalnya, energi terbarukan)."
+            },
+            {
+                question: "Apa yang dimaksud dengan \"titik kritis\" (tipping points) dalam konteks pemanasan global?",
+                options: [
+                    "Titik di mana emisi gas rumah kaca mulai menurun secara drastis.",
+                    "Suatu ambang batas perubahan iklim yang, jika terlampaui, akan memicu perubahan drastis dan ireversibel dalam sistem iklim global.",
+                    "Titik di mana seluruh es di kutub sudah mencair sepenuhnya.",
+                    "Momen ketika seluruh negara di dunia mencapai kesepakatan mitigasi iklim.",
+                    "Batas suhu di mana manusia tidak dapat lagi bertahan hidup di Bumi."
+                ],
+                correctAnswer: 1,
+                explanation: "Titik kritis (tipping point) dalam sistem iklim adalah ambang batas di mana perubahan kecil dapat memicu perubahan besar, seringkali mendadak dan tidak dapat diubah (ireversibel), dalam sistem iklim global. Contohnya termasuk runtuhnya lapisan es besar."
+            },
+            {
+                question: "Mengapa penurunan emisi sementara (misalnya saat pandemi) belum cukup mengubah tren pemanasan global jangka panjang?",
+                options: [
+                    "Penurunan emisi hanya terjadi di sektor transportasi, bukan di industri.",
+                    "Gas rumah kaca yang telah terakumulasi di atmosfer memiliki waktu tinggal yang sangat lama.",
+                    "Efek rumah kaca justru meningkat saat aktivitas manusia menurun.",
+                    "Sebagian besar emisi gas rumah kaca berasal dari proses alam, bukan aktivitas manusia.",
+                    "Penurunan emisi hanya bersifat regional, tidak global."
+                ],
+                correctAnswer: 1,
+                explanation: "Gas rumah kaca seperti CO2 dapat bertahan di atmosfer selama ratusan tahun. Penurunan emisi sementara tidak cukup untuk mengurangi konsentrasi yang sudah terakumulasi. Diperlukan pengurangan emisi yang berkelanjutan dan drastis dalam jangka panjang."
+            },
+            {
+                question: "Bagaimana pergeseran zona iklim yang cepat akibat pemanasan global dapat mengancam keanekaragaman hayati?",
+                options: [
+                    "Mendorong spesies untuk beradaptasi lebih cepat dan berevolusi menjadi spesies baru.",
+                    "Memungkinkan spesies invasif untuk mendominasi ekosistem.",
+                    "Mengganggu siklus hidup reproduksi dan migrasi spesies, serta mempersempit habitat.",
+                    "Meningkatkan jumlah individu dalam setiap spesies karena kondisi yang lebih hangat.",
+                    "Menciptakan ekosistem baru yang lebih stabil dan kaya spesies."
+                ],
+                correctAnswer: 2, // Opsi b juga benar, tapi c lebih komprehensif.
+                explanation: "Perubahan iklim yang cepat membuat banyak spesies kesulitan beradaptasi. Zona iklim bergeser lebih cepat daripada kemampuan spesies untuk berpindah atau menyesuaikan diri, mengganggu siklus hidup mereka (reproduksi, migrasi), mempersempit habitat, dan dapat menyebabkan kepunahan. Spesies invasif juga bisa lebih mudah menyebar."
+            },
+            {
+                question: "Apa konsekuensi utama perubahan pola hujan dan musim (kemarau panjang, hujan ekstrem) terhadap ketersediaan air tawar dan pertanian?",
+                options: [
+                    "Peningkatan ketersediaan air tawar karena penguapan yang lebih cepat.",
+                    "Stabilisasi hasil pertanian global karena variabilitas yang berkurang.",
+                    "Krisis air, kegagalan panen, dan peningkatan risiko kelaparan di daerah yang bergantung pada pertanian tadah hujan.",
+                    "Pembentukan sumber air tawar baru yang melimpah dari pencairan es.",
+                    "Distribusi air yang lebih merata secara geografis di seluruh dunia."
+                ],
+                correctAnswer: 2,
+                explanation: "Perubahan pola hujan yang tidak menentu sangat mengganggu siklus hidrologi dan pertanian. Hal ini menyebabkan krisis ketersediaan air tawar, kegagalan panen karena kekurangan atau kelebihan air, dan pada akhirnya meningkatkan risiko kelaparan."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const nextButton = document.getElementById('next-button');
+        const progressBar = document.getElementById('progress-bar');
+        const questionNumberElement = document.getElementById('question-number');
+        const resultsContainer = document.getElementById('results-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const quizContent = document.getElementById('quiz-content');
+        const restartButton = document.getElementById('restart-button');
+
+        function loadQuestion() {
+            feedbackContainer.style.display = 'none';
+            nextButton.style.display = 'none';
+            optionsContainer.innerHTML = ''; // Hapus opsi sebelumnya
+
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionTextElement.textContent = currentQuestion.question;
+            
+            // Update progress bar
+            const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = progressPercentage + '%';
+            questionNumberElement.textContent = `Soal ${currentQuestionIndex + 1} dari ${quizData.length}`;
+
+
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => selectAnswer(index, button));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(selectedIndex, selectedButton) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQuestion.correctAnswer;
+
+            // Nonaktifkan semua tombol opsi setelah satu dipilih
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                // Hapus styling hover jika ada
+                btn.classList.remove('hover:bg-dbeafe', 'hover:transform', 'hover:-translate-y-0.5');
+            });
+
+
+            if (isCorrect) {
+                score++;
+                selectedButton.classList.add('correct');
+                feedbackContainer.innerHTML = `<strong>Benar!</strong> <div class="explanation">${currentQuestion.explanation}</div>`;
+                feedbackContainer.className = 'feedback correct';
+            } else {
+                selectedButton.classList.add('incorrect');
+                // Tandai jawaban yang benar
+                optionsContainer.children[currentQuestion.correctAnswer].classList.add('correct');
+                feedbackContainer.innerHTML = `<strong>Salah.</strong> Jawaban yang benar adalah: ${currentQuestion.options[currentQuestion.correctAnswer]} <div class="explanation">${currentQuestion.explanation}</div>`;
+                feedbackContainer.className = 'feedback incorrect';
+            }
+
+            feedbackContainer.style.display = 'block';
+            nextButton.style.display = 'block';
+        }
+
+        function showResults() {
+            quizContent.style.display = 'none';
+            document.getElementById('progress-container').style.display = 'none';
+            questionNumberElement.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            scoreDisplay.textContent = `Skor Anda: ${score} dari ${quizData.length} soal (${((score/quizData.length)*100).toFixed(1)}%)`;
+        }
+        
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultsContainer.style.display = 'none';
+            quizContent.style.display = 'block';
+            document.getElementById('progress-container').style.display = 'block';
+            questionNumberElement.style.display = 'block';
+            progressBar.style.width = '0%';
+            loadQuestion();
+        }
+
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+        
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Mulai kuis
+        loadQuestion();
+    </script>
+</body>
+</html>
